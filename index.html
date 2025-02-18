@@ -10,7 +10,6 @@
         .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         button { display: block; width: 100%; margin: 10px 0; padding: 12px; border: none; background: #004f9e; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; transition: background 0.3s ease-in-out; }
         button:hover { background: #002f6c; }
-        .section-title { font-size: 22px; font-weight: bold; margin-top: 20px; color: #004f9e; }
         .question { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9fafc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
         .summary { margin-top: 20px; padding: 15px; background: #dde7f0; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; }
@@ -33,7 +32,6 @@
     
     <script>
         let questions = [];
-        let lastDomain = "";
         function loadCSV(file) {
             fetch(file)
                 .then(response => response.text())
@@ -46,20 +44,12 @@
                     rows.forEach(row => {
                         if (!row.trim()) return;
                         const cols = row.split(";");
-                        const id = cols[0], domain = cols[1], topic = cols[2], question = cols[3];
-                        const options = cols.slice(4);
-                        
-                        if (domain !== lastDomain) {
-                            const domainDiv = document.createElement("div");
-                            domainDiv.classList.add("section-title");
-                            domainDiv.innerText = domain;
-                            container.appendChild(domainDiv);
-                            lastDomain = domain;
-                        }
+                        const id = cols[0], question = cols[1];
+                        const options = cols.slice(2);
                         
                         const div = document.createElement("div");
                         div.classList.add("question");
-                        div.innerHTML = `<strong>${topic}</strong><br>${question}<br>`;
+                        div.innerHTML = `<strong>${id}</strong><br>${question}<br>`;
                         
                         options.forEach((opt, index) => {
                             const radio = `<label><input type='radio' name='${id}' value='${index + 1}'> ${opt}</label><br>`;
