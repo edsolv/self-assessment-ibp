@@ -1,2 +1,2 @@
-# self-assessment-ibp
-IBP Normenkader Funderend Onderwijs selfassessment
+# self-assessment normerkader ibp-fo
+selfassessment voor het Normenkader IBP Funderend Onderwijs 
