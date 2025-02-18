@@ -7,20 +7,21 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; background-color: #eef3f7; }
         h1 { text-align: center; color: #004f9e; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        button { display: block; width: 100%; margin: 10px 0; padding: 10px; border: none; background: #004f9e; color: white; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        button { display: block; width: 100%; margin: 10px 0; padding: 12px; border: none; background: #004f9e; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; transition: background 0.3s ease-in-out; }
         button:hover { background: #002f6c; }
-        .question { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #ffffff; }
-        .summary { margin-top: 20px; padding: 10px; background: #dde7f0; border-radius: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .section-title { font-size: 20px; font-weight: bold; margin-top: 20px; color: #004f9e; }
+        .question { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9fafc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .summary { margin-top: 20px; padding: 15px; background: #dde7f0; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #b8cce4; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Self-Assessment IBP</h1>
-        <p>Selecteer een vragenlijst:</p>
+        <p style="text-align: center;">Selecteer een vragenlijst:</p>
         <button onclick="loadCSV('self_assessment_IBP.csv')">Informatiebeveiliging</button>
         <button onclick="loadCSV('self_assessment_Privacy.csv')">Privacy</button>
         
@@ -32,6 +33,7 @@
     
     <script>
         let questions = [];
+        let lastSection = "";
         function loadCSV(file) {
             fetch(file)
                 .then(response => response.text())
@@ -46,6 +48,15 @@
                         const cols = row.split(";");
                         const id = cols[0], question = cols[1];
                         const options = cols.slice(2);
+                        
+                        let section = id.split(".")[0];
+                        if (section !== lastSection) {
+                            const sectionDiv = document.createElement("div");
+                            sectionDiv.classList.add("section-title");
+                            sectionDiv.innerText = `Onderdeel ${section}`;
+                            container.appendChild(sectionDiv);
+                            lastSection = section;
+                        }
                         
                         const div = document.createElement("div");
                         div.classList.add("question");
