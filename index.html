@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Self-Assessment IBP</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; background-color: #f8f9fa; }
-        h1 { text-align: center; }
+        body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; background-color: #eef3f7; }
+        h1 { text-align: center; color: #004f9e; }
         .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        button { display: block; width: 100%; margin: 10px 0; padding: 10px; border: none; background: #007bff; color: white; font-size: 16px; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
+        button { display: block; width: 100%; margin: 10px 0; padding: 10px; border: none; background: #004f9e; color: white; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #002f6c; }
         .question { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #ffffff; }
-        .summary { margin-top: 20px; padding: 10px; background: #e9ecef; border-radius: 5px; }
+        .summary { margin-top: 20px; padding: 10px; background: #dde7f0; border-radius: 5px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
+        th { background-color: #b8cce4; }
     </style>
 </head>
 <body>
@@ -26,6 +26,7 @@
         
         <div id="questions"></div>
         <button onclick="generateSummary()">Toon Overzicht</button>
+        <button onclick="downloadResults()">Download Resultaten</button>
         <div id="summary" class="summary"></div>
     </div>
     
@@ -72,7 +73,23 @@
             summary += "</table>";
             document.getElementById("summary").innerHTML = summary;
         }
+        
+        function downloadResults() {
+            let csvContent = "data:text/csv;charset=utf-8,ID,Volwassenheidsniveau\n";
+            
+            questions.forEach(id => {
+                const selected = document.querySelector(`input[name='${id}']:checked`);
+                csvContent += `${id},${selected ? selected.value : 'Niet ingevuld'}\n`;
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "self_assessment_resultaten.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
-
