@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Self-Assessment IBP</title>
+    <title>Self-Assessment Normenkader IBP-FO</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; background-color: #eef3f7; }
         h1 { text-align: center; color: #004f9e; }
+        .subtitle { text-align: center; font-size: 14px; margin-top: -10px; }
         .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         button { display: block; width: 100%; margin: 10px 0; padding: 12px; border: none; background: #004f9e; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; transition: background 0.3s ease-in-out; }
         button:hover { background: #002f6c; }
@@ -15,11 +16,13 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #b8cce4; }
+        .footer { text-align: center; margin-top: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Self-Assessment IBP</h1>
+        <h1>Self-Assessment Normenkader IBP-FO</h1>
+        <p class="subtitle">Meer weten? Bezoek <a href="https://edsolv.nl" target="_blank">Edsolv</a> voor meer informatie.</p>
         <p style="text-align: center;">Selecteer een vragenlijst:</p>
         <button onclick="loadCSV('self_assessment_IBP.csv')">Informatiebeveiliging</button>
         <button onclick="loadCSV('self_assessment_Privacy.csv')">Privacy</button>
@@ -28,6 +31,10 @@
         <button onclick="generateSummary()">Toon Overzicht</button>
         <button onclick="downloadResults()">Download Resultaten</button>
         <div id="summary" class="summary"></div>
+    </div>
+    
+    <div class="footer">
+        <p>Meer weten? Bezoek <a href="https://edsolv.nl" target="_blank">Edsolv</a> voor meer informatie.</p>
     </div>
     
     <script>
