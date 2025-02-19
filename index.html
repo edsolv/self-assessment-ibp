@@ -6,7 +6,6 @@
     <title>Self-Assessment Normenkader IBP-FO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
         body { font-family: 'Montserrat', sans-serif !important; margin: 20px; padding: 20px; background-color: #eef3f7; }
         h1 { text-align: center; color: #1D3557; }
         .subtitle { text-align: center; font-size: 14px; margin-top: -10px; }
@@ -64,6 +63,7 @@
                             const radio = `<label><input type='radio' name='${id}' value='${index + 1}'> ${opt}</label><br>`;
                             div.innerHTML += radio;
                         });
+                        div.innerHTML += `<textarea name='comment_${id}' maxlength='300' placeholder='Opmerkingen (max 300 tekens)...' style='width: 100%; margin-top: 10px;'></textarea>`;
                         container.appendChild(div);
                         questions.push(id);
                     });
@@ -72,11 +72,12 @@
         }
         
         function generateSummary() {
-            let summary = "<h2>Jouw antwoorden</h2><table><tr><th>ID</th><th>Volwassenheidsniveau</th></tr>";
+            let summary = "<h2>Jouw antwoorden</h2><table><tr><th>ID</th><th>Volwassenheidsniveau</th><th>Opmerkingen</th></tr>";
             
             questions.forEach(id => {
                 const selected = document.querySelector(`input[name='${id}']:checked`);
-                summary += `<tr><td>${id}</td><td>${selected ? selected.value : 'Niet ingevuld'}</td></tr>`;
+                const comment = document.querySelector(`textarea[name='comment_${id}']`).value;
+                summary += `<tr><td>${id}</td><td>${selected ? selected.value : 'Niet ingevuld'}</td><td>${comment}</td></tr>`;
             });
             
             summary += "</table>";
@@ -84,11 +85,13 @@
         }
         
         function downloadResults() {
-            let csvContent = "data:text/csv;charset=utf-8,ID,Volwassenheidsniveau\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID,Volwassenheidsniveau,Opmerkingen\n";
             
             questions.forEach(id => {
                 const selected = document.querySelector(`input[name='${id}']:checked`);
-                csvContent += `${id},${selected ? selected.value : 'Niet ingevuld'}\n`;
+                const comment = document.querySelector(`textarea[name='comment_${id}']`).value;
+                csvContent += `${id},${selected ? selected.value : 'Niet ingevuld'},"${comment}"
+`;
             });
             
             const encodedUri = encodeURI(csvContent);
