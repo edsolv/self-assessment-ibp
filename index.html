@@ -101,14 +101,13 @@
             renderPage();
         }
         
-        function saveResponses() {
-            document.querySelectorAll(".question").forEach(div => {
-                const id = div.querySelector("strong").textContent;
-                const selected = div.querySelector(`input[name='${id}']:checked`);
-                const comment = div.querySelector(`textarea[name='comment_${id}']`).value;
-                userResponses[id] = { answer: selected ? selected.value : null, comment };
+        function generateSummary() {
+            let summary = "<h2>Jouw antwoorden</h2><table><tr><th>ID</th><th>Volwassenheidsniveau</th><th>Opmerkingen</th></tr>";
+            Object.keys(userResponses).forEach(id => {
+                const response = userResponses[id];
+                summary += `<tr><td>${id}</td><td>${response.answer || 'Niet ingevuld'}</td><td>${response.comment || ''}</td></tr>`;
             });
-            localStorage.setItem('userResponses', JSON.stringify(userResponses));
+            document.getElementById("summary").innerHTML = summary;
         }
     </script>
 </body>
