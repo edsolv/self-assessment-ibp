@@ -84,31 +84,31 @@
                 div.innerHTML += `<textarea name='comment_${id}' maxlength='300' placeholder='Opmerkingen (max 300 tekens)...' style='width: 100%; margin-top: 10px;' oninput='saveResponses()'>${comment}</textarea>`;
                 container.appendChild(div);
             });
-            
-            document.getElementById("prevPage").style.display = currentPage > 0 ? "block" : "none";
-            document.getElementById("nextPage").style.display = end < questions.length ? "block" : "none";
         }
 
-        function nextPage() {
-            saveResponses();
-            currentPage++;
-            renderPage();
-        }
-
-        function prevPage() {
-            saveResponses();
-            currentPage--;
-            renderPage();
+        function generateSummary() {
+            let summary = "<h2>Jouw antwoorden</h2><table><tr><th>ID</th><th>Volwassenheidsniveau</th><th>Opmerkingen</th></tr>";
+            Object.keys(userResponses).forEach(id => {
+                const response = userResponses[id];
+                summary += `<tr><td>${id}</td><td>${response.answer || 'Niet ingevuld'}</td><td>${response.comment || ''}</td></tr>`;
+            });
+            document.getElementById("summary").innerHTML = summary;
         }
         
-        function saveResponses() {
-            document.querySelectorAll(".question").forEach(div => {
-                const id = div.querySelector("strong").textContent;
-                const selected = div.querySelector(`input[name='${id}']:checked`);
-                const comment = div.querySelector(`textarea[name='comment_${id}']`).value;
-                userResponses[id] = { answer: selected ? selected.value : null, comment };
+        function downloadResults() {
+            let csvContent = "data:text/csv;charset=utf-8,ID,Volwassenheidsniveau,Opmerkingen\n";
+            Object.keys(userResponses).forEach(id => {
+                const response = userResponses[id];
+                csvContent += `${id},${response.answer || 'Niet ingevuld'},"${response.comment || ''}"
+`;
             });
-            localStorage.setItem('userResponses', JSON.stringify(userResponses));
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "self_assessment_resultaten.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
