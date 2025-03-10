@@ -9,10 +9,12 @@
         body { font-family: 'Montserrat', sans-serif !important; margin: 20px; padding: 20px; background-color: #eef3f7; }
         h1 { text-align: center; color: #757575; }
         .subtitle { text-align: center; font-size: 14px; margin-top: -10px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         button { display: block; width: 100%; margin: 10px 0; padding: 12px; border: none; background: #0db1e4; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; transition: background 0.3s ease-in-out; }
         button:hover { background: #0db1e4; }
-        .question { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9fafc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .question { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #f9fafc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); line-height: 1.6; }
+        .question label { display: block; margin-top: 8px; }
+        .question textarea { width: 100%; margin-top: 10px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
         .summary { margin-top: 20px; padding: 15px; background: #F1FAEE; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
@@ -39,78 +41,5 @@
     <div class="footer">
         <p>Meer weten? Bezoek <a href="https://edsolv.nl" target="_blank">Edsolv</a> voor meer informatie.</p>
     </div>
-    
-    <script>
-        let questions = [];
-        let currentPage = 0;
-        const questionsPerPage = 5;
-        let userResponses = JSON.parse(localStorage.getItem('userResponses')) || {};
-
-        function loadCSV(file) {
-            fetch(file)
-                .then(response => response.text())
-                .then(data => {
-                    const rows = data.split("\n").slice(1);
-                    questions = rows.map(row => {
-                        if (!row.trim()) return null;
-                        const cols = row.split(";");
-                        return { id: cols[0], question: cols[1], options: cols.slice(2) };
-                    }).filter(Boolean);
-                    currentPage = 0;
-                    renderPage();
-                })
-                .catch(error => console.error('Fout bij laden van CSV:', error));
-        }
-        
-        function renderPage() {
-            const container = document.getElementById("questions");
-            container.innerHTML = "";
-            const start = currentPage * questionsPerPage;
-            const end = start + questionsPerPage;
-            
-            questions.slice(start, end).forEach(({ id, question, options }) => {
-                const div = document.createElement("div");
-                div.classList.add("question");
-                div.innerHTML = `<strong>${id}</strong><br>${question}<br>`;
-                
-                options.forEach((opt, index) => {
-                    const checked = userResponses[id] && userResponses[id].answer == index + 1 ? "checked" : "";
-                    div.innerHTML += `<label><input type='radio' name='${id}' value='${index + 1}' ${checked} onchange='saveResponses()'> ${opt}</label><br>`;
-                });
-                
-                const comment = userResponses[id] ? userResponses[id].comment : "";
-                div.innerHTML += `<textarea name='comment_${id}' maxlength='300' placeholder='Opmerkingen (max 300 tekens)...' style='width: 100%; margin-top: 10px;' oninput='saveResponses()'>${comment}</textarea>`;
-                container.appendChild(div);
-            });
-        }
-
-        function generateSummary() {
-            let summary = "<h2>Jouw antwoorden</h2><table><tr><th>ID</th><th>Volwassenheidsniveau</th><th>Opmerkingen</th></tr>";
-            
-            Object.keys(userResponses).forEach(id => {
-                const response = userResponses[id];
-                summary += `<tr><td>${id}</td><td>${response.answer || 'Niet ingevuld'}</td><td>${response.comment || ''}</td></tr>`;
-            });
-            
-            summary += "</table>";
-            document.getElementById("summary").innerHTML = summary;
-        }
-        
-        function downloadResults() {
-            let csvContent = "data:text/csv;charset=utf-8,ID,Volwassenheidsniveau,Opmerkingen\n";
-            Object.keys(userResponses).forEach(id => {
-                const response = userResponses[id];
-                csvContent += `${id},${response.answer || 'Niet ingevuld'},"${response.comment || ''}"
-`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "self_assessment_resultaten.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
 </body>
 </html>
