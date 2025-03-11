@@ -87,18 +87,6 @@
             document.getElementById("prevPage").style.display = currentPage > 0 ? "block" : "none";
             document.getElementById("nextPage").style.display = end < questions.length ? "block" : "none";
         }
-
-        function nextPage() {
-            saveResponses();
-            currentPage++;
-            renderPage();
-        }
-
-        function prevPage() {
-            saveResponses();
-            currentPage--;
-            renderPage();
-        }
     </script>
 </body>
 </html>
