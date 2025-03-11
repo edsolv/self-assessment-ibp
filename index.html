@@ -8,90 +8,114 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
         body { font-family: 'Montserrat', sans-serif !important; margin: 20px; padding: 20px; background-color: #eef3f7; }
         h1 { text-align: center; color: #757575; }
-        .subtitle { text-align: center; font-size: 14px; margin-top: -10px; }
         .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         button { display: block; width: 100%; margin: 10px 0; padding: 12px; border: none; background: #0db1e4; color: white; font-size: 16px; border-radius: 8px; cursor: pointer; transition: background 0.3s ease-in-out; }
-        button:hover { background: #0db1e4; }
-        .question { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9fafc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
-        .summary { margin-top: 20px; padding: 15px; background: #F1FAEE; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #A8DADC; }
-        .footer { text-align: center; margin-top: 20px; font-size: 14px; }
+        button:hover { background: #0c91bf; }
+        .question { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9fafc; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        .pagination { display: flex; justify-content: space-between; margin-top: 20px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>0-meting Normenkader IBP-FO</h1>
-        <p class="subtitle">Gebaseerd op de versie van 21-2-2025 van <a href="https://normenkaderibp.kennisnet.nl/" target="_blank">Kennisnet.</a><br>Er worden geen gegevens opgeslagen, dus druk zelf op <b>Download Resultaten</b> na afloop!</p>
         <p style="text-align: center;">Selecteer een vragenlijst:</p>
         <button onclick="loadCSV('self_assessment_IBP.csv')">Informatiebeveiliging</button>
         <button onclick="loadCSV('self_assessment_Privacy.csv')">Privacy</button>
         
         <div id="questions"></div>
+        <div class="pagination">
+            <button id="prev" class="hidden" onclick="prevPage()">Vorige</button>
+            <button id="next" class="hidden" onclick="nextPage()">Volgende</button>
+        </div>
         <button onclick="generateSummary()">Toon Overzicht</button>
         <button onclick="downloadResults()">Download Resultaten</button>
         <div id="summary" class="summary"></div>
     </div>
-    
-    <div class="footer">
-          <p class="subtitle">Gebaseerd op de versie van 21-2-2025 van <a href="https://normenkaderibp.kennisnet.nl/" target="_blank">Kennisnet</a>.</p>
-    </div>
-    
+
     <script>
         let questions = [];
+        let currentPage = 0;
+        const pageSize = 5;
+        let answers = {};
+
         function loadCSV(file) {
             fetch(file)
                 .then(response => response.text())
                 .then(data => {
-                    const rows = data.split("\n").slice(1);
-                    const container = document.getElementById("questions");
-                    container.innerHTML = "";
-                    questions = [];
-                    
-                    rows.forEach(row => {
-                        if (!row.trim()) return;
+                    questions = data.split("\n").slice(1).filter(row => row.trim()).map(row => {
                         const cols = row.split(";");
-                        const id = cols[0], question = cols[1];
-                        const options = cols.slice(2);
-                        
-                        const div = document.createElement("div");
-                        div.classList.add("question");
-                        div.innerHTML = `<strong>${id}</strong><br>${question}<br>`;
-                        
-                        options.forEach((opt, index) => {
-                            const radio = `<label><input type='radio' name='${id}' value='${index + 1}'> ${opt}</label><br>`;
-                            div.innerHTML += radio;
-                        });
-                        div.innerHTML += `<textarea name='comment_${id}' maxlength='300' placeholder='Opmerkingen (max 300 tekens)...' style='width: 100%; margin-top: 10px;'></textarea>`;
-                        container.appendChild(div);
-                        questions.push(id);
+                        return { id: cols[0], question: cols[1], options: cols.slice(2) };
                     });
+                    answers = {}; // Reset antwoorden bij nieuwe vragenlijst
+                    currentPage = 0;
+                    renderQuestions();
                 })
                 .catch(error => console.error('Fout bij laden van CSV:', error));
         }
-        
+
+        function renderQuestions() {
+            const container = document.getElementById("questions");
+            container.innerHTML = "";
+            const start = currentPage * pageSize;
+            const end = start + pageSize;
+            
+            questions.slice(start, end).forEach(q => {
+                const div = document.createElement("div");
+                div.classList.add("question");
+                div.innerHTML = `<strong>${q.id}</strong><br><br>${q.question}<br><br>`;
+                
+                q.options.forEach((opt, index) => {
+                    const checked = answers[q.id] === (index + 1) ? "checked" : "";
+                    div.innerHTML += `<label><input type='radio' name='${q.id}' value='${index + 1}' ${checked} onchange='saveAnswer("${q.id}", ${index + 1})'> ${opt}</label><br><br>`;
+                });
+                div.innerHTML += `<textarea name='comment_${q.id}' maxlength='300' placeholder='Opmerkingen (max 300 tekens)...' style='width: 100%; margin-top: 10px;'>${answers[`comment_${q.id}`] || ""}</textarea>`;
+                div.querySelector(`textarea`).addEventListener("input", (e) => saveComment(q.id, e.target.value));
+                container.appendChild(div);
+            });
+            updatePagination();
+        }
+
+        function saveAnswer(id, value) {
+            answers[id] = value;
+        }
+
+        function saveComment(id, value) {
+            answers[`comment_${id}`] = value;
+        }
+
+        function updatePagination() {
+            document.getElementById("prev").classList.toggle("hidden", currentPage === 0);
+            document.getElementById("next").classList.toggle("hidden", (currentPage + 1) * pageSize >= questions.length);
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                renderQuestions();
+            }
+        }
+
+        function nextPage() {
+            if ((currentPage + 1) * pageSize < questions.length) {
+                currentPage++;
+                renderQuestions();
+            }
+        }
+
         function generateSummary() {
             let summary = "<h2>Jouw antwoorden</h2><table><tr><th>ID</th><th>Volwassenheidsniveau</th><th>Opmerkingen</th></tr>";
-            
-            questions.forEach(id => {
-                const selected = document.querySelector(`input[name='${id}']:checked`);
-                const comment = document.querySelector(`textarea[name='comment_${id}']`).value;
-                summary += `<tr><td>${id}</td><td>${selected ? selected.value : 'Niet ingevuld'}</td><td>${comment}</td></tr>`;
+            questions.forEach(q => {
+                summary += `<tr><td>${q.id}</td><td>${answers[q.id] || 'Niet ingevuld'}</td><td>${answers[`comment_${q.id}`] || ''}</td></tr>`;
             });
-            
             summary += "</table>";
             document.getElementById("summary").innerHTML = summary;
         }
-        
+
         function downloadResults() {
             let csvContent = "data:text/csv;charset=utf-8,ID,Volwassenheidsniveau,Opmerkingen\n";
-            
-            questions.forEach(id => {
-                const selected = document.querySelector(`input[name='${id}']:checked`);
-                const comment = document.querySelector(`textarea[name='comment_${id}']`).value;
-                csvContent += `${id},${selected ? selected.value : 'Niet ingevuld'},"${comment}"
-`;
+            questions.forEach(q => {
+                csvContent += `${q.id},${answers[q.id] || 'Niet ingevuld'},"${answers[`comment_${q.id}`] || ''}"\n`;
             });
             
             const encodedUri = encodeURI(csvContent);
